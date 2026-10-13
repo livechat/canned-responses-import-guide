@@ -1,0 +1,4 @@
+text,tags,group_id,is_private
+"Thank you for contacting us!","greeting|support",0,false
+"We'll get back to you soon.",follow-up,0,false
+"Internal note for the team",internal,0,true
