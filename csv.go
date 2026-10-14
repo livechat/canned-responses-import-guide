@@ -12,7 +12,7 @@ import (
 
 type cannedResponse struct {
 	Text      string   `json:"text"`
-	Tags      []string `json:"tags"`
+	Shortcuts []string `json:"tags"`
 	GroupID   int      `json:"group_id"`
 	IsPrivate bool     `json:"is_private"`
 	line      int
@@ -33,7 +33,7 @@ func readResponses(input io.Reader) ([]cannedResponse, error) {
 		header[0] = strings.TrimPrefix(header[0], "\ufeff")
 	}
 
-	want := []string{"text", "tags", "group_id", "is_private"}
+	want := []string{"text", "shortcuts", "group_id", "is_private"}
 	if len(header) != len(want) {
 		return nil, fmt.Errorf("CSV header must be %s", strings.Join(want, ","))
 	}
@@ -70,15 +70,15 @@ func readResponses(input io.Reader) ([]cannedResponse, error) {
 		}
 
 		if strings.TrimSpace(fields[1]) == "" {
-			return nil, fmt.Errorf("line %d: tags must contain at least one tag", line)
+			return nil, fmt.Errorf("line %d: shortcuts must contain at least one shortcut", line)
 		}
-		tags := make([]string, 0)
+		shortcuts := make([]string, 0)
 		for _, value := range strings.Split(fields[1], "|") {
-			tag := strings.TrimSpace(value)
-			if tag == "" {
-				return nil, fmt.Errorf("line %d: tags must not contain empty entries", line)
+			shortcut := strings.TrimSpace(value)
+			if shortcut == "" {
+				return nil, fmt.Errorf("line %d: shortcuts must not contain empty entries", line)
 			}
-			tags = append(tags, tag)
+			shortcuts = append(shortcuts, shortcut)
 		}
 
 		groupID, err := strconv.Atoi(strings.TrimSpace(fields[2]))
@@ -97,7 +97,7 @@ func readResponses(input io.Reader) ([]cannedResponse, error) {
 
 		responses = append(responses, cannedResponse{
 			Text:      fields[0],
-			Tags:      tags,
+			Shortcuts: shortcuts,
 			GroupID:   groupID,
 			IsPrivate: isPrivate,
 			line:      line,
