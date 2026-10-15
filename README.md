@@ -14,13 +14,15 @@ The tool validates the entire CSV **before sending requests**, then prints `Crea
 
 ## CSV format
 
-The header must be exactly `text,tags,group_id,is_private`, in that order:
+The header must be exactly `text,shortcuts,group_id,is_private`, in that order:
 
 | Column | Format |
 | --- | --- |
 | `text` | Required, nonblank response text. Quote it if it contains commas or line breaks. The API sanitizes text and can reject content that becomes empty. |
-| `tags` | Required: at least one nonblank tag. Separate multiple tags with `|`, for example `greeting|support`. |
+| `shortcuts` | Required: at least one nonblank shortcut. Separate multiple shortcuts with `|`, for example `greeting|support`. |
 | `group_id` | Non-negative integer for an existing Text group; General may be `0`. Invalid/nonexistent group IDs are reported by the API. |
 | `is_private` | Required `true` or `false`. |
 
 **Every run creates every row again.** It does not check for duplicates or resume. After a partial import, check which responses were created in Text and remove those rows from the CSV before retrying. If a request times out, it may have created a response even without a result; check Text before retrying.
+
+The Configuration API names the shortcuts field `tags`; the importer maps the CSV `shortcuts` column to that API field to be consistent with Text Canned Responses form creator. 
