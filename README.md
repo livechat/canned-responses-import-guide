@@ -1,28 +1,49 @@
 # Import canned responses from CSV
 
-A small, create-only Go example for the Text Configuration API v3.6. Each CSV row is sent to `https://api.livechatinc.com/v3.6/configuration/action/create_canned_response` to create one **chat-side** canned response.
+Creates one Text canned response per CSV row, using the Configuration API v3.6. Create-only: it never updates or deletes.
 
-## Run
+See the [full setup guide](https://www.text.com/docs/guides/bulk-manage-canned-responses).
 
-1. Install Go 1.27 or newer.
-2. Create a Text personal access token with the `canned_responses--all:rw` scope (to create responses in any group in your organization) or `canned_responses--groups:rw` (to create responses only in your groups). In Text, copy the Base64-encoded `account_id:PAT` value.
-3. Copy `.env.example` to `.env` and replace the placeholder with that value. Alternatively, set `TEXT_API_BASIC_AUTH` in your environment to `Basic <base64(account_id:PAT)>`.
-4. Copy `canned-responses.example.csv` to `responses.csv`, then edit the rows.
-5. Run `go run . --file responses.csv`.
+## Quickstart
 
-The tool validates the entire CSV **before sending requests**, then prints `Created X of Y canned responses.` An invalid file makes no API calls. Row-level API errors are printed with line numbers; the command exits with a nonzero status if any response was not created.
+Requires Go 1.27 or newer and a Text personal access token with the `canned_responses--all:rw` scope (to create responses in any group in your organization) or `canned_responses--groups:rw` (to create responses only in your groups).
+
+Follow the setup guide above to create the token and prepare the CSV file.
+
+```shell
+git clone https://github.com/livechat/canned-responses-import-guide.git
+cd canned-responses-import-guide
+cp .env.example .env    # set TEXT_API_BASIC_AUTH
+cp canned-responses.example.csv responses.csv
+go run . --file responses.csv
+```
+
+A successful run prints `Created X of Y canned responses.`
+
+The importer validates the whole CSV before it sends any request, so an invalid file makes no API calls. Row-level API errors are printed with their line numbers, and the command exits with a nonzero status if any response wasn't created.
+
+**Every run creates every row again.** It doesn't check for duplicates or resume. After a partial import, check which responses exist in Text and remove those rows before retrying.
+
+## Configuration
+
+| Variable              | Required | Description                                                             |
+| --------------------- | -------- | ----------------------------------------------------------------------- |
+| `TEXT_API_BASIC_AUTH` | Yes      | `Basic ` followed by the Base64-encoded `account_id:PAT` value from Text. |
+
+Set it in `.env`, or export it in your shell instead.
 
 ## CSV format
 
-The header must be exactly `text,shortcuts,group_id,is_private`, in that order:
+The header must be exactly `text,shortcuts,group_id,is_private`, in that order. The setup guide documents each column. `canned-responses.example.csv` is a working example.
 
-| Column | Format |
-| --- | --- |
-| `text` | Required, nonblank response text. Quote it if it contains commas or line breaks. The API sanitizes text and can reject content that becomes empty. |
-| `shortcuts` | Required: at least one nonblank shortcut. Separate multiple shortcuts with `|`, for example `greeting|support`. |
-| `group_id` | Non-negative integer for an existing Text group; General may be `0`. Invalid/nonexistent group IDs are reported by the API. |
-| `is_private` | Required `true` or `false`. |
+The Configuration API names the shortcuts field `tags`. The importer maps the CSV `shortcuts` column to that field, to match what the Text app calls it.
 
-**Every run creates every row again.** It does not check for duplicates or resume. After a partial import, check which responses were created in Text and remove those rows from the CSV before retrying. If a request times out, it may have created a response even without a result; check Text before retrying.
+## Tests
 
-The Configuration API names the shortcuts field `tags`; the importer maps the CSV `shortcuts` column to that API field to be consistent with Text Canned Responses form creator. 
+```shell
+go test ./...
+```
+
+---
+
+See the full [Text documentation reference](https://www.text.com/docs).
