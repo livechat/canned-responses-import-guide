@@ -44,6 +44,10 @@ The Configuration API names the shortcuts field `tags`. The importer maps the CS
 go test ./...
 ```
 
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
 ---
 
 See the full [Text documentation reference](https://www.text.com/docs).
