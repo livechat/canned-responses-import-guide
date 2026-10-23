@@ -5,7 +5,7 @@ A small, create-only Go example for the Text Configuration API v3.6. Each CSV ro
 ## Run
 
 1. Install Go 1.27 or newer.
-2. Create a Text personal access token with the `canned_responses_write` scope. In Text, copy the Base64-encoded `account_id:PAT` value.
+2. Create a Text personal access token with the `canned_responses--all:rw` scope (to create responses in any group in your organization) or `canned_responses--groups:rw` (to create responses only in your groups). In Text, copy the Base64-encoded `account_id:PAT` value.
 3. Copy `.env.example` to `.env` and replace the placeholder with that value. Alternatively, set `TEXT_API_BASIC_AUTH` in your environment to `Basic <base64(account_id:PAT)>`.
 4. Copy `canned-responses.example.csv` to `responses.csv`, then edit the rows.
 5. Run `go run . --file responses.csv`.
